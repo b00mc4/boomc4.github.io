@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>💌 จดหมายพิเศษ</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -144,7 +144,7 @@ body{
   position:fixed;inset:0;z-index:100;
   display:flex;align-items:flex-start;justify-content:center;
   background:rgba(255,244,252,.97);
-  padding:18px 12px 50px;
+  padding:20px 10px 40px;
   overflow-y:auto;-webkit-overflow-scrolling:touch;
   opacity:0;pointer-events:none;
   transition:opacity .55s ease;
@@ -154,8 +154,9 @@ body{
 /* 3D Flip Container */
 .letter-card{
   position:relative;
-  width:100%;max-width:420px;
+  width:92%;max-width:380px; /* ปรับให้แคบลงนิดหน่อยเพื่อให้พอดีจอ iPhone */
   perspective:1200px;
+  margin:auto;
 }
 .card-inner{
   display:grid;
@@ -172,7 +173,7 @@ body{
   backface-visibility:hidden;
   background:#fffef8;
   border-radius:12px;
-  padding:clamp(22px,6vw,36px) clamp(18px,6vw,32px);
+  padding:clamp(20px,5vw,28px) clamp(16px,4vw,24px);
   box-shadow:0 0 0 1px rgba(244,143,177,.18),0 8px 40px rgba(181,41,94,.13),0 2px 12px rgba(0,0,0,.06);
 }
 
@@ -192,33 +193,35 @@ body{
   align-items:center;
   justify-content:center;
   text-align:center;
-  padding:25px 15px; /* ลด padding ลงนิดหน่อยให้มีพื้นที่รูป */
+  padding:25px 15px;
+  position:relative;
+  overflow:hidden;
 }
 
 /* Typography Inside Card */
-.card-deco{text-align:center;font-size:1.3rem;letter-spacing:10px;margin-bottom:16px}
-.card-meta p{font-family:'Dancing Script',cursive;font-size:1rem;color:#8c1742;line-height:1.9}
-.card-hr{border:none;height:2px;background:linear-gradient(to right,transparent,#f48fb1 45%,transparent);margin:14px 0}
-.card-greeting{font-family:'Dancing Script',cursive;font-size:clamp(1.2rem,4.5vw,1.4rem);color:#7b0d3e;margin-bottom:14px}
-.card-body{font-size:clamp(.88rem,3vw,.96rem);line-height:2.15;color:#5a3a2a}
-.card-body p{margin-bottom:12px}
+.card-deco{text-align:center;font-size:1.3rem;letter-spacing:10px;margin-bottom:12px}
+.card-meta p{font-family:'Dancing Script',cursive;font-size:0.95rem;color:#8c1742;line-height:1.8}
+.card-hr{border:none;height:2px;background:linear-gradient(to right,transparent,#f48fb1 45%,transparent);margin:12px 0}
+.card-greeting{font-family:'Dancing Script',cursive;font-size:clamp(1.1rem,4.5vw,1.3rem);color:#7b0d3e;margin-bottom:12px}
+.card-body{font-size:clamp(.85rem,3vw,.92rem);line-height:2.0;color:#5a3a2a}
+.card-body p{margin-bottom:10px}
 
 /* Button Group Front */
 .btn-group{
   display:flex;
   flex-direction:column;
-  gap:12px;
-  margin-top:24px;
+  gap:10px;
+  margin-top:20px;
 }
 .action-btn{
   display:block;width:100%;
-  padding:14px 20px;border:none;border-radius:50px;
+  padding:12px 16px;border:none;border-radius:50px;
   font-family:'Sarabun',sans-serif;
-  font-size:1rem;font-weight:500;letter-spacing:.3px;
+  font-size:0.95rem;font-weight:500;letter-spacing:.3px;
   cursor:pointer;
   transition:transform .15s,box-shadow .15s;
   -webkit-tap-highlight-color:transparent;
-  white-space:normal; /* ให้ข้อความยาวๆ ขึ้นบรรทัดใหม่ได้ */
+  white-space:normal; 
   line-height:1.4;
 }
 .action-btn:active{transform:scale(.97)}
@@ -234,54 +237,51 @@ body{
 }
 .btn-heart:disabled{cursor:default}
 
-/* Swipeable Photo Gallery on Back */
-.photo-scroll{
+/* Overlapping Photo Gallery on Back */
+.photo-wrap{
   display:flex;
-  overflow-x:auto;
-  gap:16px;
-  padding:10px 10px 25px 10px;
-  margin-bottom:15px;
+  justify-content:center;
+  align-items:center;
   width:100%;
-  scroll-snap-type:x mandatory;
-  -webkit-overflow-scrolling:touch;
+  padding:10px 0 20px;
+  position:relative;
+  z-index:2; /* ให้อยู่เหนือดาวตก */
 }
-/* ซ่อน Scrollbar ให้ดูสะอาดตา */
-.photo-scroll::-webkit-scrollbar{display:none;}
-.photo-scroll{-ms-overflow-style:none;scrollbar-width:none;}
-
 .polaroid{
-  flex:0 0 180px; /* ขนาดความกว้างของแต่ละรูป */
+  width:30%; /* แบ่งสัดส่วนให้พอดีจอ ไม่ต้องเลื่อน */
   background:#fff;
-  padding:8px 8px 26px 8px;
+  padding:5px 5px 18px 5px;
   box-shadow:0 4px 15px rgba(0,0,0,0.12);
   border-radius:4px;
-  scroll-snap-align:center;
+  transition:transform 0.3s;
 }
-.p1{transform:rotate(-3deg);}
-.p2{transform:rotate(2deg);}
-.p3{transform:rotate(-1deg);}
-
 .polaroid img{
   width:100%;
-  height:200px;
+  aspect-ratio:1/1; /* ทำให้รูปเป็นสี่เหลี่ยมจัตุรัสแบบโพลารอยด์ */
   object-fit:cover;
   border-radius:2px;
   display:block;
 }
+/* สลับองศาและซ้อนกันนิดๆ */
+.p1{transform:rotate(-8deg) translateX(10px); z-index:1;}
+.p2{transform:scale(1.1) rotate(2deg); z-index:3; box-shadow:0 6px 18px rgba(0,0,0,0.18);}
+.p3{transform:rotate(10deg) translateX(-10px); z-index:1;}
 
 .back-msg{
   font-family:'Sarabun',sans-serif;
   color:#b5295e;
-  font-size:1.1rem;
+  font-size:1rem;
   font-weight:500;
-  margin-bottom:10px;
+  margin-bottom:8px;
   line-height:1.6;
+  position:relative; z-index:2;
 }
 .back-sub{
   font-size:0.85rem;
   color:#8c1742;
   opacity:0.8;
-  margin-bottom:24px;
+  margin-bottom:20px;
+  position:relative; z-index:2;
 }
 .btn-back{
   background:#f48fb1;
@@ -290,12 +290,33 @@ body{
   padding:8px 24px;
   font-size:0.9rem;
   box-shadow:0 4px 12px rgba(244,143,177,.3);
+  position:relative; z-index:2;
 }
 
 /* ============================================================
-   FLOATING HEARTS
+   FALLING STARS ON BACK
 ============================================================ */
-#hearts{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden}
+.back-stars{
+  position:absolute; inset:0;
+  pointer-events:none; z-index:0;
+}
+.b-star{
+  position:absolute;
+  color:#f48fb1;
+  animation:b-fall linear infinite;
+  opacity:0;
+}
+@keyframes b-fall{
+  0%{transform:translateY(-20px) rotate(0deg); opacity:0;}
+  15%{opacity:0.6;}
+  85%{opacity:0.6;}
+  100%{transform:translateY(350px) rotate(180deg); opacity:0;}
+}
+
+/* ============================================================
+   FLOATING HEARTS FULL SCREEN
+============================================================ */
+#hearts{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
 .fheart{
   position:fixed;
   top:0;left:var(--x,50%);
@@ -306,22 +327,19 @@ body{
 @keyframes fall{
   0%{opacity:0;transform:translateY(-80px) rotate(var(--r1,0deg)) scale(.7)}
   8%{opacity:1}
-  100%{opacity:1;transform:translateY(var(--land,80vh)) rotate(var(--r2,5deg)) scale(1)}
+  100%{opacity:1;transform:translateY(var(--land,100vh)) rotate(var(--r2,5deg)) scale(1)}
 }
 
-/* ============================================================
-   POWER BAR
-============================================================ */
-#pbar{position:fixed;left:0;bottom:0;right:0;height:11px;background:rgba(255,255,255,.25);z-index:300;display:none}
-#pbar.on{display:block}
-#pfill{
-  height:100%;width:0%;
-  background:linear-gradient(90deg,#f48fb1,#f06292,#e91e8c,#ff6fa3);
-  background-size:200% 100%;
-  transition:width .08s linear;
-  animation:pshine 1.2s linear infinite;
+/* FULL OVERLAY */
+#full-overlay{
+  position:fixed;inset:0;
+  background:rgba(255,244,252,0.96);
+  z-index:9990;
+  opacity:0;
+  transition:opacity 0.5s ease;
+  backdrop-filter:blur(3px);
+  display:none;
 }
-@keyframes pshine{from{background-position:0%}to{background-position:200%}}
 </style>
 </head>
 <body>
@@ -345,6 +363,9 @@ body{
 
   <p class="hint" id="hint">💌 แตะเพื่อเปิดจดหมาย</p>
 </div>
+
+<div id="full-overlay"></div>
+<div id="hearts"></div>
 
 <div class="letter-ov" id="letterOv">
   <div class="letter-card" id="letterCard">
@@ -373,8 +394,9 @@ body{
       </div>
 
       <div class="card-back">
+        <div class="back-stars" id="backStars"></div>
         
-        <div class="photo-scroll">
+        <div class="photo-wrap">
           <div class="polaroid p1">
             <img src="image_399baa.jpg" alt="Our Memory 1">
           </div>
@@ -395,9 +417,6 @@ body{
   </div>
 </div>
 
-<div id="hearts"></div>
-<div id="pbar"><div id="pfill"></div></div>
-
 <script>
 /* background sparkles */
 const CHR=['✿','♡','⋆','·','*','˖','°','❀','✦','˚','•'];
@@ -417,6 +436,19 @@ for(let i=0;i<22;i++){
     `--dl:${(Math.random()*4).toFixed(1)}s`
   ].join(';');
   document.body.appendChild(s);
+}
+
+/* Generate stars for back card */
+const bs = document.getElementById('backStars');
+for(let i=0; i<15; i++){
+  let s = document.createElement('div');
+  s.className = 'b-star';
+  s.textContent = ['✨','⋆','°','✿'][Math.floor(Math.random()*4)];
+  s.style.left = (Math.random()*90 + 5) + '%';
+  s.style.fontSize = (Math.random()*10 + 8) + 'px';
+  s.style.animationDuration = (Math.random()*3 + 3) + 's';
+  s.style.animationDelay = (Math.random()*3) + 's';
+  bs.appendChild(s);
 }
 
 /* iOS-safe tap event */
@@ -461,51 +493,95 @@ addTap(document.getElementById('flipBackBtn'), function(){
 
 /* hearts effect */
 const EM=['💕','💗','💖','💝','💓','❤️','🌸','✨','💫','🌟','⭐','🎀','🩷','🫧'];
-let pct=0,tmr=null,fired=false;
-let col=0; const COLS=14;
+let fired=false;
 
-function spawn(forceX){
+function spawnHeart(){
   const l=document.getElementById('hearts');
   const h=document.createElement('span');
   h.className='fheart';
-  const dur=(Math.random()*1.4+2).toFixed(2);
-  const x = forceX!=null ? forceX : ((col*(100/COLS))+(Math.random()*7)).toFixed(1);
-  col=(col+1)%COLS;
-  const land=(Math.random()*88+5).toFixed(1);
+  
+  const x = (Math.random()*100).toFixed(1);
+  const sz = (Math.random()*3 + 2).toFixed(2); // หัวใจดวงใหญ่ขึ้น
+  const dur = (Math.random()*1.5 + 1.2).toFixed(2); // ตกเร็วขึ้น
+  const land = (Math.random()*110 + 10).toFixed(1);
+
   h.style.cssText=[
     `--x:${x}%`,
-    `--sz:${(Math.random()*1.4+1.8).toFixed(2)}rem`,
+    `--sz:${sz}rem`,
     `--dur:${dur}s`,
-    `--r1:${((Math.random()-.5)*20).toFixed(0)}deg`,
-    `--r2:${((Math.random()-.5)*12).toFixed(0)}deg`,
+    `--r1:${((Math.random()-.5)*30).toFixed(0)}deg`,
+    `--r2:${((Math.random()-.5)*45).toFixed(0)}deg`,
     `--land:${land}vh`
   ].join(';');
   h.textContent=EM[Math.floor(Math.random()*EM.length)];
   l.appendChild(h);
+
+  // ลบออกจาก DOM เพื่อไม่ให้หน่วงเครื่อง
+  setTimeout(() => {
+    if(h.parentNode) h.parentNode.removeChild(h);
+  }, dur * 1000 + 100);
+}
+
+function showPopup(overlay) {
+  const popup = document.createElement('div');
+  popup.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-40%) scale(0.8);background:#fff;padding:35px 20px 25px;border-radius:20px;box-shadow:0 10px 40px rgba(181,41,94,0.3);z-index:99999;text-align:center;width:85%;max-width:320px;opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);font-family:"Sarabun",sans-serif;';
+  
+  popup.innerHTML = `
+    <div style="font-size:3.5rem;margin-bottom:10px;line-height:1;">🥺</div>
+    <h3 style="color:#b5295e;font-size:1.15rem;margin-bottom:8px;font-weight:500;">แล้วแพรรู้สึกกับเราขนาดไหนหรอ 👉👈</h3>
+    <p style="color:#8c1742;font-size:0.9rem;margin-bottom:24px;opacity:0.8;">((ทักมาบอกเราหน่อย คิคิ))</p>
+    <button id="okBtn" style="background:linear-gradient(135deg,#f06292,#e91e8c);color:#fff;border:none;padding:12px 35px;border-radius:30px;font-size:1rem;font-weight:500;font-family:'Sarabun',sans-serif;cursor:pointer;box-shadow:0 6px 16px rgba(233,30,140,0.3);transition:transform 0.1s;">โอเคคค 💕</button>
+  `;
+  document.body.appendChild(popup);
+
+  setTimeout(() => {
+    popup.style.opacity = '1';
+    popup.style.transform = 'translate(-50%,-50%) scale(1)';
+  }, 50);
+
+  // Add click animation
+  const okBtn = document.getElementById('okBtn');
+  okBtn.addEventListener('mousedown', () => okBtn.style.transform = 'scale(0.95)');
+  okBtn.addEventListener('mouseup', () => okBtn.style.transform = 'scale(1)');
+  
+  addTap(okBtn, () => {
+     popup.style.opacity = '0';
+     popup.style.transform = 'translate(-50%,-45%) scale(0.9)';
+     overlay.style.opacity = '0';
+     
+     setTimeout(() => {
+       popup.remove();
+       overlay.style.display = 'none';
+       document.getElementById('hearts').innerHTML = ''; // ล้างหัวใจ
+       fired = false;
+       const btn = document.getElementById('hBtn');
+       btn.disabled = false;
+       btn.textContent = '💝 อยากรู้เปล่าว่าบูมรู้สึกกับแพรขนาดไหน';
+     }, 400);
+  });
 }
 
 function launchHearts(){
   if(fired)return; fired=true;
   const btn=document.getElementById('hBtn');
-  const fill=document.getElementById('pfill');
-  const pbar=document.getElementById('pbar');
   btn.disabled=true;
-  btn.textContent='💜 กำลังโหลด...';
-  pbar.classList.add('on');
-  tmr=setInterval(()=>{
-    for(let i=0;i<6;i++) spawn();
-    pct=Math.min(pct+1.6,100);
-    fill.style.width=pct+'%';
-    if(pct>=100){
-      clearInterval(tmr);
-      for(let c=0;c<COLS;c++){
-        for(let r=0;r<16;r++){
-          setTimeout(()=>spawn((c*(100/COLS)+Math.random()*6).toFixed(1)),r*80+c*12);
-        }
-      }
-      btn.textContent='💗 นี่ไงงงง เยอะเท่านี้เลย! 💗';
-    }
-  },75);
+  btn.textContent='💜 กำลังส่งความรู้สึก...';
+
+  // แสดง overlay คลุมจอ
+  const overlay = document.getElementById('full-overlay');
+  overlay.style.display = 'block';
+  setTimeout(() => overlay.style.opacity = '1', 10);
+
+  // ปล่อยหัวใจแบบรัวๆ
+  const interval = setInterval(() => {
+    for(let i=0;i<8;i++) spawnHeart();
+  }, 60);
+
+  // หลังจากผ่านไป 3 วินาที ให้หยุดหัวใจแล้วโชว์ป๊อปอัป
+  setTimeout(() => {
+    clearInterval(interval);
+    showPopup(overlay);
+  }, 3200);
 }
 
 addTap(document.getElementById('hBtn'), launchHearts);
