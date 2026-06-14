@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>💌 จดหมายพิเศษ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{
+  min-height:100dvh;
+  background:linear-gradient(150deg,#fff0f8 0%,#ffe4f0 50%,#ffd6e7 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Sarabun',sans-serif;
+  position:relative;
+  user-select:none;-webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* background sparkles */
+.star{position:fixed;pointer-events:none;z-index:0;opacity:.2;
+  animation:star-f var(--d,5s) ease-in-out infinite alternate;
+  animation-delay:var(--dl,0s);
+  color:hsl(var(--h,340),65%,72%);font-size:var(--fs,11px);
+}
+@keyframes star-f{
+  from{transform:translate(0,0) rotate(0deg) scale(1)}
+  to{transform:translate(var(--tx,5px),var(--ty,-12px)) rotate(10deg) scale(1.1)}
+}
+
+/* scene */
+.scene{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:1.4rem;padding:20px}
+.scene-title{
+  font-family:'Dancing Script',cursive;
+  font-size:clamp(1.4rem,5.5vw,1.9rem);
+  color:#b5295e;
+  text-align:center;
+  text-shadow:0 2px 14px rgba(181,41,94,.15);
+}
+
+/* envelope wrapper */
+.env{
+  position:relative;
+  width:clamp(240px,78vw,300px);
+  aspect-ratio:3/2;
+  cursor:pointer;
+  animation:env-bob 3.5s ease-in-out infinite;
+  filter:drop-shadow(0 10px 26px rgba(181,41,94,.24));
+}
+@keyframes env-bob{
+  0%,100%{transform:translateY(0) rotate(-1.5deg)}
+  50%{transform:translateY(-13px) rotate(1.5deg)}
+}
+.env.stopped{animation:none;transform:none}
+
+/* envelope body */
+.env-body{
+  position:absolute;inset:0;
+  background:#fff9f2;
+  border-radius:8px;
+  overflow:hidden;
+}
+.env-body::before{
+  content:'';position:absolute;inset:0;
+  background:#ffd4e6;
+  clip-path:polygon(0 100%,50% 50%,100% 100%);
+}
+.env-sl{
+  position:absolute;top:0;left:0;
+  width:50%;height:100%;
+  background:#ffd4e6;
+  clip-path:polygon(0 0,100% 50%,0 100%);
+  border-radius:8px 0 0 8px;
+}
+.env-sr{
+  position:absolute;top:0;right:0;
+  width:50%;height:100%;
+  background:#ffd4e6;
+  clip-path:polygon(100% 0,0 50%,100% 100%);
+  border-radius:0 8px 8px 0;
+}
+
+/* top flap */
+.env-fp{position:absolute;top:0;left:0;width:100%;height:50%;perspective:800px;z-index:5}
+.env-flap{
+  width:100%;height:100%;
+  transform-origin:top center;
+  transform-style:preserve-3d;
+  transition:transform .82s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
+}
+.env-flap.open{transform:rotateX(-180deg)}
+.env-flap-face{
+  position:absolute;inset:0;
+  background:#ffbedd;
+  clip-path:polygon(0 0,100% 0,50% 100%);
+  border-radius:8px 8px 0 0;
+}
+
+/* stamp & seal */
+.env-stamp{
+  position:absolute;top:10px;right:12px;
+  width:32px;height:40px;
+  background:#fff;
+  border:2px dashed #ffbedd;
+  border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;z-index:12;
+}
+.env-seal{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:48px;height:48px;
+  background:radial-gradient(circle at 38% 36%,#ff79b0,#b5295e);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;
+  box-shadow:0 3px 10px rgba(0,0,0,.2),0 0 0 3px #fff9f2;
+  z-index:10;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .25s;
+}
+.env-seal.pop{transform:translate(-50%,-50%) scale(1.35)}
+.env-seal.gone{transform:translate(-50%,-50%) scale(0);opacity:0}
+.env-lbl{
+  position:absolute;bottom:16px;left:0;right:0;
+  text-align:center;z-index:4;pointer-events:none;
+}
+.env-lbl span{
+  font-family:'Dancing Script',cursive;
+  font-size:clamp(.85rem,3vw,1rem);
+  color:#8c1742;
+  background:rgba(255,255,255,.72);
+  padding:2px 12px;border-radius:20px;
+  backdrop-filter:blur(4px);
+}
+.hint{font-size:.82rem;color:#c2185b;animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.35}50%{opacity:.9}}
+
+/* ============================================================
+   LETTER OVERLAY & FLIP CARD
+============================================================ */
+.letter-ov{
+  position:fixed;inset:0;z-index:100;
+  display:flex;align-items:flex-start;justify-content:center;
+  background:rgba(255,244,252,.97);
+  padding:18px 12px 50px;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  opacity:0;pointer-events:none;
+  transition:opacity .55s ease;
+}
+.letter-ov.show{opacity:1;pointer-events:all}
+
+/* 3D Flip Container */
+.letter-card{
+  position:relative;
+  width:100%;max-width:420px;
+  perspective:1200px;
+}
+.card-inner{
+  display:grid;
+  width:100%;
+  transition:transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style:preserve-3d;
+}
+.card-inner.is-flipped{
+  transform:rotateY(180deg);
+}
+.card-front, .card-back{
+  grid-area:1 / 1;
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+  background:#fffef8;
+  border-radius:12px;
+  padding:clamp(22px,6vw,36px) clamp(18px,6vw,32px);
+  box-shadow:0 0 0 1px rgba(244,143,177,.18),0 8px 40px rgba(181,41,94,.13),0 2px 12px rgba(0,0,0,.06);
+}
+
+/* Front Side */
+.card-front{
+  background-image:repeating-linear-gradient(transparent,transparent 28px,rgba(244,143,177,.18) 28px,rgba(244,143,177,.18) 29px);
+  border-left:3px solid rgba(244,143,177,.3);
+}
+
+/* Back Side */
+.card-back{
+  transform:rotateY(180deg);
+  background-image:repeating-linear-gradient(transparent,transparent 28px,rgba(244,143,177,.18) 28px,rgba(244,143,177,.18) 29px);
+  border-right:3px solid rgba(244,143,177,.3);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:25px 15px; /* ลด padding ลงนิดหน่อยให้มีพื้นที่รูป */
+}
+
+/* Typography Inside Card */
+.card-deco{text-align:center;font-size:1.3rem;letter-spacing:10px;margin-bottom:16px}
+.card-meta p{font-family:'Dancing Script',cursive;font-size:1rem;color:#8c1742;line-height:1.9}
+.card-hr{border:none;height:2px;background:linear-gradient(to right,transparent,#f48fb1 45%,transparent);margin:14px 0}
+.card-greeting{font-family:'Dancing Script',cursive;font-size:clamp(1.2rem,4.5vw,1.4rem);color:#7b0d3e;margin-bottom:14px}
+.card-body{font-size:clamp(.88rem,3vw,.96rem);line-height:2.15;color:#5a3a2a}
+.card-body p{margin-bottom:12px}
+
+/* Button Group Front */
+.btn-group{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:24px;
+}
+.action-btn{
+  display:block;width:100%;
+  padding:14px 20px;border:none;border-radius:50px;
+  font-family:'Sarabun',sans-serif;
+  font-size:1rem;font-weight:500;letter-spacing:.3px;
+  cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+  -webkit-tap-highlight-color:transparent;
+  white-space:normal; /* ให้ข้อความยาวๆ ขึ้นบรรทัดใหม่ได้ */
+  line-height:1.4;
+}
+.action-btn:active{transform:scale(.97)}
+.btn-flip{
+  background:linear-gradient(135deg,#ffe4f0,#ffbedd);
+  color:#b5295e;
+  box-shadow:0 6px 20px rgba(255,190,221,.4);
+}
+.btn-heart{
+  background:linear-gradient(135deg,#f06292,#e91e8c);
+  color:#fff;
+  box-shadow:0 6px 22px rgba(233,30,140,.38);
+}
+.btn-heart:disabled{cursor:default}
+
+/* Swipeable Photo Gallery on Back */
+.photo-scroll{
+  display:flex;
+  overflow-x:auto;
+  gap:16px;
+  padding:10px 10px 25px 10px;
+  margin-bottom:15px;
+  width:100%;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+}
+/* ซ่อน Scrollbar ให้ดูสะอาดตา */
+.photo-scroll::-webkit-scrollbar{display:none;}
+.photo-scroll{-ms-overflow-style:none;scrollbar-width:none;}
+
+.polaroid{
+  flex:0 0 180px; /* ขนาดความกว้างของแต่ละรูป */
+  background:#fff;
+  padding:8px 8px 26px 8px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.12);
+  border-radius:4px;
+  scroll-snap-align:center;
+}
+.p1{transform:rotate(-3deg);}
+.p2{transform:rotate(2deg);}
+.p3{transform:rotate(-1deg);}
+
+.polaroid img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  border-radius:2px;
+  display:block;
+}
+
+.back-msg{
+  font-family:'Sarabun',sans-serif;
+  color:#b5295e;
+  font-size:1.1rem;
+  font-weight:500;
+  margin-bottom:10px;
+  line-height:1.6;
+}
+.back-sub{
+  font-size:0.85rem;
+  color:#8c1742;
+  opacity:0.8;
+  margin-bottom:24px;
+}
+.btn-back{
+  background:#f48fb1;
+  color:#fff;
+  width:auto;
+  padding:8px 24px;
+  font-size:0.9rem;
+  box-shadow:0 4px 12px rgba(244,143,177,.3);
+}
+
+/* ============================================================
+   FLOATING HEARTS
+============================================================ */
+#hearts{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden}
+.fheart{
+  position:fixed;
+  top:0;left:var(--x,50%);
+  font-size:var(--sz,1.5rem);
+  animation:fall var(--dur,3s) ease-in forwards;
+  opacity:0;
+}
+@keyframes fall{
+  0%{opacity:0;transform:translateY(-80px) rotate(var(--r1,0deg)) scale(.7)}
+  8%{opacity:1}
+  100%{opacity:1;transform:translateY(var(--land,80vh)) rotate(var(--r2,5deg)) scale(1)}
+}
+
+/* ============================================================
+   POWER BAR
+============================================================ */
+#pbar{position:fixed;left:0;bottom:0;right:0;height:11px;background:rgba(255,255,255,.25);z-index:300;display:none}
+#pbar.on{display:block}
+#pfill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,#f48fb1,#f06292,#e91e8c,#ff6fa3);
+  background-size:200% 100%;
+  transition:width .08s linear;
+  animation:pshine 1.2s linear infinite;
+}
+@keyframes pshine{from{background-position:0%}to{background-position:200%}}
+</style>
+</head>
+<body>
+
+<div class="scene" id="scene">
+  <h1 class="scene-title">✨ จดหมายพิเศษ 💌</h1>
+
+  <div class="env" id="env">
+    <div class="env-body"></div>
+    <div class="env-sl"></div>
+    <div class="env-sr"></div>
+    <div class="env-fp">
+      <div class="env-flap" id="flap">
+        <div class="env-flap-face"></div>
+      </div>
+    </div>
+    <div class="env-stamp">🌸</div>
+    <div class="env-seal" id="seal">💕</div>
+    <div class="env-lbl"><span>To : Nong Paer 💌</span></div>
+  </div>
+
+  <p class="hint" id="hint">💌 แตะเพื่อเปิดจดหมาย</p>
+</div>
+
+<div class="letter-ov" id="letterOv">
+  <div class="letter-card" id="letterCard">
+    <div class="card-inner" id="cardInner">
+      
+      <div class="card-front">
+        <div class="card-deco">✿ ♡ ✿</div>
+        <div class="card-meta">
+          <p>From : Boom 🌟</p>
+          <p>To : Nong Paer 🌸</p>
+        </div>
+        <hr class="card-hr">
+        <p class="card-greeting">อรุณสวัสดิ์ครับ ☀️</p>
+        <div class="card-body">
+          <p>ถ้าเธอได้รับจดหมายฉบับนี้ แปลว่ามีคนกำลังส่งความคิดถึงไปหาเธออยู่แน่ ๆ เลย (อิอิ)</p>
+          <p>อย่างที่เคยบอกไว้ เค้าตั้งใจจะส่งให้ตั้งแต่วันเสาร์แล้ว แต่ดันติดปัญหาตรงเอาขึ้นเซิร์ฟเวอร์ไม่ได้ พอตอนนี้ทำได้แล้วก็เลยรีบส่งมาเลยยย Happy~ 🎉</p>
+          <p>แล้วเช้านี้อาการเป็นยังไงบ้าง ดีขึ้นกว่าเมื่อวานไหม? ถ้าดีขึ้นก็โล่งใจเลย แต่ถ้ายังไม่ค่อยดีขึ้นก็ไม่เป็นไรนะ กินยาตามที่ตัวเองบอกไว้ แล้วก็อย่าหักโหมมากน้าาา</p>
+          <p>วันจันทร์แล้วสินะ ต้องกลับไปเรียนอีกแล้ว แย่จัง TT แต่ไม่เป็นไร เค้าจะคอยเป็นกำลังใจให้เธอเองงงง 💛</p>
+          <p>ว่าแล้วก็ลองกดปุ่มข้างล่างดูสิ มีให้เลือกอยู่ 2 ปุ่ม อยากได้อันไหนก็กดได้เลยยย~</p>
+        </div>
+        
+        <div class="btn-group">
+          <button class="action-btn btn-flip" id="flipBtn">✨ ขอกำลังใจหน่อยยย</button>
+          <button class="action-btn btn-heart" id="hBtn">💝 อยากรู้เปล่าว่าบูมรู้สึกกับแพรขนาดไหน</button>
+        </div>
+      </div>
+
+      <div class="card-back">
+        
+        <div class="photo-scroll">
+          <div class="polaroid p1">
+            <img src="image_399baa.jpg" alt="Our Memory 1">
+          </div>
+          <div class="polaroid p2">
+            <img src="image_3998fd.jpg" alt="Our Memory 2">
+          </div>
+          <div class="polaroid p3">
+            <img src="image_399ba4.jpg" alt="Our Memory 3">
+          </div>
+        </div>
+
+        <p class="back-msg">สู้ๆนะ ขอให้วันนี้เป็นวันที่ดี ยิ้มเย้อๆ<br>เหน่ยก็ทักมาหาเค้าได้ตลอดเลยยยยย</p>
+        <p class="back-sub">((เสียดายรูปคู่มีน้อยอ่ะ TT<br>คราวหน้าต้องถ่ายเยอะๆซะแล้ววว))</p>
+        <button class="action-btn btn-back" id="flipBackBtn">↩️ พลิกกลับหน้าเดิม</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="hearts"></div>
+<div id="pbar"><div id="pfill"></div></div>
+
+<script>
+/* background sparkles */
+const CHR=['✿','♡','⋆','·','*','˖','°','❀','✦','˚','•'];
+for(let i=0;i<22;i++){
+  const s=document.createElement('span');
+  s.className='star';
+  s.textContent=CHR[i%CHR.length];
+  const h=Math.floor(Math.random()*28+328);
+  s.style.cssText=[
+    `left:${(Math.random()*96+2).toFixed(1)}%`,
+    `top:${(Math.random()*96+2).toFixed(1)}%`,
+    `--fs:${(Math.random()*11+7).toFixed(0)}px`,
+    `--h:${h}`,
+    `--d:${(Math.random()*4+3.5).toFixed(1)}s`,
+    `--tx:${((Math.random()-.5)*16).toFixed(0)}px`,
+    `--ty:${(-(Math.random()*13+6)).toFixed(0)}px`,
+    `--dl:${(Math.random()*4).toFixed(1)}s`
+  ].join(';');
+  document.body.appendChild(s);
+}
+
+/* iOS-safe tap event */
+function addTap(el, fn){
+  let sx,sy;
+  el.addEventListener('touchstart',function(e){
+    sx=e.touches[0].clientX; sy=e.touches[0].clientY;
+  },{passive:true});
+  el.addEventListener('touchend',function(e){
+    const dx=Math.abs(e.changedTouches[0].clientX-sx);
+    const dy=Math.abs(e.changedTouches[0].clientY-sy);
+    if(dx<12&&dy<12){e.preventDefault();fn();}
+  },{passive:false});
+  el.addEventListener('click',fn);
+}
+
+/* envelope open */
+let opened=false;
+function openEnv(){
+  if(opened)return; opened=true;
+  const env=document.getElementById('env');
+  const flap=document.getElementById('flap');
+  const seal=document.getElementById('seal');
+  const hint=document.getElementById('hint');
+  env.classList.add('stopped');
+  hint.style.cssText='opacity:0;transition:opacity .4s';
+  seal.classList.add('pop');
+  setTimeout(()=>seal.classList.add('gone'),360);
+  setTimeout(()=>flap.classList.add('open'),400);
+  setTimeout(()=>document.getElementById('letterOv').classList.add('show'),1150);
+}
+
+addTap(document.getElementById('env'), openEnv);
+
+/* Flip Card Logic */
+addTap(document.getElementById('flipBtn'), function(){
+  document.getElementById('cardInner').classList.add('is-flipped');
+});
+addTap(document.getElementById('flipBackBtn'), function(){
+  document.getElementById('cardInner').classList.remove('is-flipped');
+});
+
+/* hearts effect */
+const EM=['💕','💗','💖','💝','💓','❤️','🌸','✨','💫','🌟','⭐','🎀','🩷','🫧'];
+let pct=0,tmr=null,fired=false;
+let col=0; const COLS=14;
+
+function spawn(forceX){
+  const l=document.getElementById('hearts');
+  const h=document.createElement('span');
+  h.className='fheart';
+  const dur=(Math.random()*1.4+2).toFixed(2);
+  const x = forceX!=null ? forceX : ((col*(100/COLS))+(Math.random()*7)).toFixed(1);
+  col=(col+1)%COLS;
+  const land=(Math.random()*88+5).toFixed(1);
+  h.style.cssText=[
+    `--x:${x}%`,
+    `--sz:${(Math.random()*1.4+1.8).toFixed(2)}rem`,
+    `--dur:${dur}s`,
+    `--r1:${((Math.random()-.5)*20).toFixed(0)}deg`,
+    `--r2:${((Math.random()-.5)*12).toFixed(0)}deg`,
+    `--land:${land}vh`
+  ].join(';');
+  h.textContent=EM[Math.floor(Math.random()*EM.length)];
+  l.appendChild(h);
+}
+
+function launchHearts(){
+  if(fired)return; fired=true;
+  const btn=document.getElementById('hBtn');
+  const fill=document.getElementById('pfill');
+  const pbar=document.getElementById('pbar');
+  btn.disabled=true;
+  btn.textContent='💜 กำลังโหลด...';
+  pbar.classList.add('on');
+  tmr=setInterval(()=>{
+    for(let i=0;i<6;i++) spawn();
+    pct=Math.min(pct+1.6,100);
+    fill.style.width=pct+'%';
+    if(pct>=100){
+      clearInterval(tmr);
+      for(let c=0;c<COLS;c++){
+        for(let r=0;r<16;r++){
+          setTimeout(()=>spawn((c*(100/COLS)+Math.random()*6).toFixed(1)),r*80+c*12);
+        }
+      }
+      btn.textContent='💗 นี่ไงงงง เยอะเท่านี้เลย! 💗';
+    }
+  },75);
+}
+
+addTap(document.getElementById('hBtn'), launchHearts);
+</script>
+</body>
+</html>
